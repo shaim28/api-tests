@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Management Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #eee;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .actions button {
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>User Management Dashboard</h1>
+
+    <form id="userForm">
+      <input type="text" id="name" placeholder="Enter name" required />
+      <input type="email" id="email" placeholder="Enter email" required />
+      <button type="submit">Add User</button>
+    </form>
+
+    <ul id="userList"></ul>
+  </div>
+
+  <script>
+    const userForm = document.getElementById('userForm');
+const userList = document.getElementById('userList');
+let editingIndex = null;
+
+function getUsers() {
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  userList.innerHTML = '';
+
+  users.forEach((user, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span><strong>${user.name}</strong> (${user.email})</span>
+      <div class="actions">
+        <button onclick="editUser(${index})">Edit</button>
+        <button onclick="deleteUser(${index})">Delete</button>
+      </div>`;
+    userList.appendChild(li);
+  });
+}
+
+userForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  if (!name || !email) return;
+
+  let users = JSON.parse(localStorage.getItem('users')) || [];
+
+  if (editingIndex === null) {
+    users.push({ name, email });
+  } else {
+    users[editingIndex] = { name, email };
+    editingIndex = null;
+    userForm.querySelector('button').innerText = 'Add User';
+  }
+
+  localStorage.setItem('users', JSON.stringify(users));
+  userForm.reset();
+  getUsers();
+});
+
+function deleteUser(index) {
+  let users = JSON.parse(localStorage.getItem('users')) || [];
+  users.splice(index, 1);
+  localStorage.setItem('users', JSON.stringify(users));
+  getUsers();
+}
+
+function editUser(index) {
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  document.getElementById('name').value = users[index].name;
+  document.getElementById('email').value = users[index].email;
+  editingIndex = index;
+  userForm.querySelector('button').innerText = 'Update User';
+}
+
+getUsers();
+
+  </script>
+</body>
+</html>
